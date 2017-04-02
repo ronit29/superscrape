@@ -18,39 +18,43 @@ def mylist():
   titles = {}
   my_list = []
   headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
-  sorce = requests.get("https://www.zomato.com/bangalore/restaurants", headers=headers)
-  sorce_text = sorce.text
-  soup = BeautifulSoup(sorce_text, "html.parser")
-  section = soup.find('section')
-  if section:  
-    row1 = section.find("div", {"class" :"row"})
-    for row2 in row1.findAll("div", {"class" :"col-l-16"}):
-      row3 = row2.find("div", {"class" :"row"})
-      if row3:
-        mt10 = row3.find("div",{"class":"mt10"})
-        if mt10:
-          mt11 = mt10.find("div",{"class":"search-start"})
-          if mt11:
-            div1 = mt11.find("div", {"class" :"search_results"})
-            section2 = div1.find("section")
-            div2 = section2.find("div", {"class" :"orig-search-list-container"})
-            for row in div2.findAll("div",{"class" :"search-snippet-card"}):
-              div3 = row.find("div", { "class" :"content"})
-              art = div3.find("article",{"class":"search-result"})
-              costdiv1 = art.find("div",{"class":"search-page-text"})
-              if costdiv1:
-                costdiv2 = costdiv1.find("div",{"class":"res-cost"})
-                costspan = costdiv2.find("span",{"class":"pl0"})
-                cost = costspan.text
-              div4 = art.find("div",{"class":"row"})
-              div5 = div4.find("div",{"class":"col-s-12"})
-              title = div5.find("a",{"class":"result-title"})
-              if title:
-               text = title['href'] 
-               text2 = title.text
-               key = str(text2.strip()) + '_' + str(cost)
-               titles[key] = text.strip()
-            my_list = titles
+  for i in range(1,446):
+    myurl = "https://www.zomato.com/ncr/restaurants?page="+str(i)
+    sorce = requests.get(myurl, headers=headers)
+    sorce_text = sorce.text
+    soup = BeautifulSoup(sorce_text, "html.parser")
+    section = soup.find('section')
+    if section:  
+      row1 = section.find("div", {"class" :"row"})
+      for row2 in row1.findAll("div", {"class" :"col-l-16"}):
+        row3 = row2.find("div", {"class" :"row"})
+        if row3:
+          mt10 = row3.find("div",{"class":"mt10"})
+          if mt10:
+            mt11 = mt10.find("div",{"class":"search-start"})
+            if mt11:
+              div1 = mt11.find("div", {"class" :"search_results"})
+              section2 = div1.find("section")
+              div2 = section2.find("div", {"class" :"orig-search-list-container"})
+              for row in div2.findAll("div",{"class" :"search-snippet-card"}):
+                div3 = row.find("div", { "class" :"content"})
+                art = div3.find("article",{"class":"search-result"})
+                costdiv1 = art.find("div",{"class":"search-page-text"})
+                if costdiv1:
+                  costdiv2 = costdiv1.find("div",{"class":"res-cost"})
+                  costspan = costdiv2.find("span",{"class":"pl0"})
+                  cost = costspan.text
+                div4 = art.find("div",{"class":"row"})
+                div5 = div4.find("div",{"class":"col-s-12"})
+                title = div5.find("a",{"class":"result-title"})
+                if title:
+                 text = title['href'] 
+                 text2 = title.text
+                 key = str(text2.strip()) + '_' + str(cost)
+                 titles[key] = text.strip()
+              done = 'page '+str(i)+' done'
+              print(done)
+  my_list = titles
   return my_list
 
 
@@ -204,7 +208,7 @@ def myreviews():
           name =  re.sub(u'\xa0','', name)
           name = name.rstrip()
           wrt = str(i) + ' ' + name + '\n' + review + '\n\n'
-          f.write(wrt) 
+          # f.write(wrt) 
           i = i+1
       out = "page "+str(z)+" done"
       print(out)
@@ -228,7 +232,7 @@ def write():
       data["menu"] = mymenu(url) 
       scrap[i] = data
       i = i+1
-  workbook = xlsxwriter.Workbook('Expenses01.xlsx')
+  workbook = xlsxwriter.Workbook('NCR.xlsx')
   worksheet = workbook.add_worksheet()
   wrap = workbook.add_format({'text_wrap':True})
   row = 0
@@ -237,11 +241,13 @@ def write():
     for key,value in item.items():   
       worksheet.write(row, col,value,wrap)
       col = col + 1
+    prin = 'row ' + str(row) + ' done'  
+    print(prin)
     row += 1  
   print("Completed")  
 
 
-
+list1= mylist()
+print(list1)
 # write()
-f = open('reviews', 'a')
-myreviews()
+# f = open('reviews', 'a')
