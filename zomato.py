@@ -18,8 +18,8 @@ def mylist():
   titles = {}
   my_list = []
   headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
-  for i in range(1,446):
-    myurl = "https://www.zomato.com/ncr/restaurants?page="+str(i)
+  for i in range(1,240):
+    myurl = "https://www.zomato.com/bangalore/restaurants?page="+str(i)
     sorce = requests.get(myurl, headers=headers)
     sorce_text = sorce.text
     soup = BeautifulSoup(sorce_text, "html.parser")
@@ -42,8 +42,9 @@ def mylist():
                 costdiv1 = art.find("div",{"class":"search-page-text"})
                 if costdiv1:
                   costdiv2 = costdiv1.find("div",{"class":"res-cost"})
-                  costspan = costdiv2.find("span",{"class":"pl0"})
-                  cost = costspan.text
+                  if costdiv2:  
+                    costspan = costdiv2.find("span",{"class":"pl0"})
+                    cost = costspan.text
                 div4 = art.find("div",{"class":"row"})
                 div5 = div4.find("div",{"class":"col-s-12"})
                 title = div5.find("a",{"class":"result-title"})
@@ -70,75 +71,83 @@ def mypage(url):
   page_text = page.text
   pagesoup = BeautifulSoup(page_text, "html.parser")
   main_div1 = pagesoup.find("div",{"class","container"})
-  main_div2 = main_div1.find("div",{"class","mtop"})
-  main_div3 = main_div2.find("div",{"class","row"})
-  main_div4 = main_div3.find("div",{"class","mbot"})
-  main_div5 = main_div4.find("div",{"class","row"})
-  if main_div5:
-    for cols in main_div5.findAll("div",{"class","pr20"}):
-  	  # Phone number
-      phone_div1 = cols.find("div",{"class","res-main-phone"})
-      if phone_div1:
-        phone_div2 = phone_div1.find("div",{"class","phone"})
-        phone_span1 = phone_div2.find("span",{"class","res-tel"})
-        phone_span2 = phone_span1.find("span",{"class","tel"})
-        phone = phone_span2.text
-      if phone:
-        fphone = phone.strip()  
-      # Cuisine
-      cuisine_div1 = cols.find("div",{"class","res-info-group"})
-      if cuisine_div1:
-        cuisine_div2 = cuisine_div1.find("div",{"class","res-info-cuisines"})
-        if cuisine_div2:
-          cuisines = ''
-          for cns in cuisine_div2.findAll("a"):
-            cns = cns.text
-            cuisines += str(cns) + ","  
-          cuisines = cuisines.rstrip(',')
-        if cuisines:
-          fcuisines = cuisines  
-	  #Timings 
-      time_div1 = cols.find("div",{"class","res-info-group"})
-      if time_div1:
-        time_div2 = time_div1.find("div",{"class","res-info-detail"})
-        if time_div2:
-          time_div3 = time_div2.find("div",{"class","res-info-timings"})
-          if time_div3:
-            time_div4 = time_div3.find("div",{"class","res-week-timetable"})
-            time_table = time_div4.find("table") 
-            titem = ''
-            for time_tr in time_table.findAll("tr"):
-              day = time_tr.find("td",{"class":"pr10"})
-              day = str(day.text) 
-              time = time_tr.find("td",{"class":"pl10"})
-              titem += day+'_'+str(time.text) + ','
-              time_list = titem.rstrip(',')
-            if time_list:
-              ftime_dict = time_list  
-      # Address
-      addrs_div1 = cols.find("div",{"class":"mbot0"})
-      if addrs_div1:
-        addrs_div2 = addrs_div1.find("div",{"class":"res-main-address"})
-        if addrs_div2:
-          addrs_span1 = addrs_div2.find("span")
-          address = addrs_span1.text
-        if address:
-          faddress = address.strip()     
-      #  Highlights
-      hilits_div1 = cols.find("div",{"class","pbot0"})
-      if hilits_div1:
-        hilits_div2 = hilits_div1.find("div",{"class","res-info-highlights"})
-        if hilits_div2:
-          highlits= ''
-          for hlits in hilits_div2.findAll("div",{"class","res-info-feature-text"}):
-            # hilit = hlits.find("div",{"class","res-info-feature-text"})
-            highlits += str(hlits.text) + "," 
-          highlits = highlits.rstrip(',') 
-      # Known for
-      known_div1 = cols.find("div",{"class":"res-info-known-for-text"})
-      if known_div1:
-        known_for = known_div1.text
-        known_for = known_for.strip() 
+  if main_div1:
+    main_div2 = main_div1.find("div",{"class","mtop"})
+    if main_div2:
+      main_div3 = main_div2.find("div",{"class","row"})
+      if main_div3:
+        main_div4 = main_div3.find("div",{"class","mbot"})
+        if main_div4:
+          main_div5 = main_div4.find("div",{"class","row"})
+        if main_div5:
+          for cols in main_div5.findAll("div",{"class","pr20"}):
+        	  # Phone number
+            phone_div1 = cols.find("div",{"class","res-main-phone"})
+            if phone_div1:
+              phone_div2 = phone_div1.find("div",{"class","phone"})
+              if phone_div2:
+                phone_span1 = phone_div2.find("span",{"class","res-tel"})
+                if phone_span1:
+                  phone_span2 = phone_span1.find("span",{"class","tel"})
+                  if phone_span2:
+                    phone = phone_span2.text
+                    if phone:
+                      fphone = phone.strip()  
+            # Cuisine
+            cuisine_div1 = cols.find("div",{"class","res-info-group"})
+            if cuisine_div1:
+              cuisine_div2 = cuisine_div1.find("div",{"class","res-info-cuisines"})
+              if cuisine_div2:
+                cuisines = ''
+                for cns in cuisine_div2.findAll("a"):
+                  cns = cns.text
+                  cuisines += str(cns) + ","  
+                cuisines = cuisines.rstrip(',')
+                if cuisines:
+                  fcuisines = cuisines  
+      	  #Timings 
+            time_div1 = cols.find("div",{"class","res-info-group"})
+            if time_div1:
+              time_div2 = time_div1.find("div",{"class","res-info-detail"})
+              if time_div2:
+                time_div3 = time_div2.find("div",{"class","res-info-timings"})
+                if time_div3:
+                  time_div4 = time_div3.find("div",{"class","res-week-timetable"})
+                  time_table = time_div4.find("table") 
+                  titem = ''
+                  for time_tr in time_table.findAll("tr"):
+                    day = time_tr.find("td",{"class":"pr10"})
+                    day = str(day.text) 
+                    time = time_tr.find("td",{"class":"pl10"})
+                    titem += day+'_'+str(time.text) + ','
+                    time_list = titem.rstrip(',')
+                  if time_list:
+                    ftime_dict = time_list  
+            # Address
+            addrs_div1 = cols.find("div",{"class":"mbot0"})
+            if addrs_div1:
+              addrs_div2 = addrs_div1.find("div",{"class":"res-main-address"})
+              if addrs_div2:
+                addrs_span1 = addrs_div2.find("span")
+                address = addrs_span1.text
+                if address:
+                  faddress = address.strip()     
+            #  Highlights
+            hilits_div1 = cols.find("div",{"class","pbot0"})
+            if hilits_div1:
+              hilits_div2 = hilits_div1.find("div",{"class","res-info-highlights"})
+              if hilits_div2:
+                highlits= ''
+                for hlits in hilits_div2.findAll("div",{"class","res-info-feature-text"}):
+                  # hilit = hlits.find("div",{"class","res-info-feature-text"})
+                  highlits += str(hlits.text) + "," 
+                highlits = highlits.rstrip(',') 
+            # Known for
+            known_div1 = cols.find("div",{"class":"res-info-known-for-text"})
+            if known_div1:
+              known_for = known_div1.text
+              if known_for:
+                known_for = known_for.strip() 
     data = {"timimgs":ftime_dict,"address":faddress,"phone":fphone,"cuisines":fcuisines,"highlits":highlits,"knownfor":known_for}     
     return data
 
@@ -150,19 +159,20 @@ def mymenu(url):
   menusoup = BeautifulSoup(menu_text, "html.parser")
   menu_div1 = menusoup.find("div",{"class","container"})
   script = menu_div1.find("script")
-  script = str(script)
-  m = re.findall('https(.+?)jpg', script)
-  if m:
-    m = set(m)
-    urls = ''
-    for x in m:
-      x = str(x)
-      x = x.replace("\\","")
-      x = "https"+x+"jpg"
-      urls += str(x) + " ,\n"
-    urls = urls.rstrip(',')  
-    urls = urls.lstrip('https://')
-    return urls   
+  if script:
+    script = str(script)
+    m = re.findall('https(.+?)jpg', script)
+    if m:
+      m = set(m)
+      urls = ''
+      for x in m:
+        x = str(x)
+        x = x.replace("\\","")
+        x = "https"+x+"jpg"
+        urls += str(x) + " ,\n"
+      urls = urls.rstrip(',')  
+      urls = urls.lstrip('https://')
+      return urls   
 
 def myreviews():
   headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
@@ -221,8 +231,10 @@ def write():
   scrap = {}
   for key,url in list1.items():
     split = key.split("_")
-    title = split[0]
-    cost = split[1]
+    if split[0]:
+      title = split[0]
+    if split[1]:  
+      cost = split[1]
     data = mypage(url)
     if data:
       if cost:
@@ -231,8 +243,10 @@ def write():
         data["title"] = str(title)
       data["menu"] = mymenu(url) 
       scrap[i] = data
+      pag = "url "+str(i)+" scrapped"
+      print(pag)
       i = i+1
-  workbook = xlsxwriter.Workbook('NCR.xlsx')
+  workbook = xlsxwriter.Workbook('Bangalore.xlsx')
   worksheet = workbook.add_worksheet()
   wrap = workbook.add_format({'text_wrap':True})
   row = 0
@@ -247,7 +261,5 @@ def write():
   print("Completed")  
 
 
-list1= mylist()
-print(list1)
-# write()
+write()
 # f = open('reviews', 'a')
