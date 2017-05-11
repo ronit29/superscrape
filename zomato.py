@@ -18,8 +18,10 @@ def mylist():
   titles = {}
   my_list = []
   headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
-  for i in range(1,446):
-    myurl = "https://www.zomato.com/ncr/restaurants?page="+str(i)
+  # for i in range(1,2):
+  zom = 5
+  if zom == 5:
+    myurl = "https://www.zomato.com/ncr/delivery"
     sorce = requests.get(myurl, headers=headers)
     sorce_text = sorce.text
     soup = BeautifulSoup(sorce_text, "html.parser")
@@ -52,7 +54,7 @@ def mylist():
                  text2 = title.text
                  key = str(text2.strip()) + '_' + str(cost)
                  titles[key] = text.strip()
-              done = 'page '+str(i)+' done'
+              done = 'page '+' done'
               print(done)
   my_list = titles
   return my_list
@@ -70,77 +72,86 @@ def mypage(url):
   page_text = page.text
   pagesoup = BeautifulSoup(page_text, "html.parser")
   main_div1 = pagesoup.find("div",{"class","container"})
-  main_div2 = main_div1.find("div",{"class","mtop"})
-  main_div3 = main_div2.find("div",{"class","row"})
-  main_div4 = main_div3.find("div",{"class","mbot"})
-  main_div5 = main_div4.find("div",{"class","row"})
-  if main_div5:
-    for cols in main_div5.findAll("div",{"class","pr20"}):
-  	  # Phone number
-      phone_div1 = cols.find("div",{"class","res-main-phone"})
-      if phone_div1:
-        phone_div2 = phone_div1.find("div",{"class","phone"})
-        phone_span1 = phone_div2.find("span",{"class","res-tel"})
-        phone_span2 = phone_span1.find("span",{"class","tel"})
-        phone = phone_span2.text
-      if phone:
-        fphone = phone.strip()  
-      # Cuisine
-      cuisine_div1 = cols.find("div",{"class","res-info-group"})
-      if cuisine_div1:
-        cuisine_div2 = cuisine_div1.find("div",{"class","res-info-cuisines"})
-        if cuisine_div2:
-          cuisines = ''
-          for cns in cuisine_div2.findAll("a"):
-            cns = cns.text
-            cuisines += str(cns) + ","  
-          cuisines = cuisines.rstrip(',')
-        if cuisines:
-          fcuisines = cuisines  
-	  #Timings 
-      time_div1 = cols.find("div",{"class","res-info-group"})
-      if time_div1:
-        time_div2 = time_div1.find("div",{"class","res-info-detail"})
-        if time_div2:
-          time_div3 = time_div2.find("div",{"class","res-info-timings"})
-          if time_div3:
-            time_div4 = time_div3.find("div",{"class","res-week-timetable"})
-            time_table = time_div4.find("table") 
-            titem = ''
-            for time_tr in time_table.findAll("tr"):
-              day = time_tr.find("td",{"class":"pr10"})
-              day = str(day.text) 
-              time = time_tr.find("td",{"class":"pl10"})
-              titem += day+'_'+str(time.text) + ','
-              time_list = titem.rstrip(',')
-            if time_list:
-              ftime_dict = time_list  
-      # Address
-      addrs_div1 = cols.find("div",{"class":"mbot0"})
-      if addrs_div1:
-        addrs_div2 = addrs_div1.find("div",{"class":"res-main-address"})
-        if addrs_div2:
-          addrs_span1 = addrs_div2.find("span")
-          address = addrs_span1.text
-        if address:
-          faddress = address.strip()     
-      #  Highlights
-      hilits_div1 = cols.find("div",{"class","pbot0"})
-      if hilits_div1:
-        hilits_div2 = hilits_div1.find("div",{"class","res-info-highlights"})
-        if hilits_div2:
-          highlits= ''
-          for hlits in hilits_div2.findAll("div",{"class","res-info-feature-text"}):
-            # hilit = hlits.find("div",{"class","res-info-feature-text"})
-            highlits += str(hlits.text) + "," 
-          highlits = highlits.rstrip(',') 
-      # Known for
-      known_div1 = cols.find("div",{"class":"res-info-known-for-text"})
-      if known_div1:
-        known_for = known_div1.text
-        known_for = known_for.strip() 
-    data = {"timimgs":ftime_dict,"address":faddress,"phone":fphone,"cuisines":fcuisines,"highlits":highlits,"knownfor":known_for}     
-    return data
+  if main_div1:
+	  main_div2 = main_div1.find("div",{"class","mtop"})
+	  if main_div2:
+		  main_div3 = main_div2.find("div",{"class","row"})
+		  if main_div3:
+			  main_div4 = main_div3.find("div",{"class","mbot"})
+			  main_div5 = main_div4.find("div",{"class","row"})
+			  if main_div5:
+			    for cols in main_div5.findAll("div",{"class","pr20"}):
+			  	  # Phone number
+			      phone_div1 = cols.find("div",{"class","res-main-phone"})
+			      if phone_div1:
+			        phone_div2 = phone_div1.find("div",{"class","phone"})
+			        if phone_div2:
+			          phone_span1 = phone_div2.find("span",{"class","res-tel"})
+			          if phone_span1:
+			            phone_span2 = phone_span1.find("span",{"class","tel"})
+			            if phone_span2:
+			              phone = phone_span2.text
+			              if phone:
+			                fphone = phone.strip()  
+			      # Cuisine
+			      cuisine_div1 = cols.find("div",{"class","res-info-group"})
+			      if cuisine_div1:
+			        cuisine_div2 = cuisine_div1.find("div",{"class","res-info-cuisines"})
+			        if cuisine_div2:
+			          cuisines = ''
+			          for cns in cuisine_div2.findAll("a"):
+			            cns = cns.text
+			            cuisines += str(cns) + ","  
+			          cuisines = cuisines.rstrip(',')
+			        if cuisines:
+			          fcuisines = cuisines  
+				  #Timings 
+			      time_div1 = cols.find("div",{"class","res-info-group"})
+			      if time_div1:
+			        time_div2 = time_div1.find("div",{"class","res-info-detail"})
+			        if time_div2:
+			          time_div3 = time_div2.find("div",{"class","res-info-timings"})
+			          if time_div3:
+			            time_div4 = time_div3.find("div",{"class","res-week-timetable"})
+			            if time_div4:
+			              time_table = time_div4.find("table") 
+			              if time_table:
+			                titem = ''
+			                for time_tr in time_table.findAll("tr"):
+			                  day = time_tr.find("td",{"class":"pr10"})
+			                  day = str(day.text) 
+			                  time = time_tr.find("td",{"class":"pl10"})
+			                  titem += day+'_'+str(time.text) + ','
+			                  time_list = titem.rstrip(',')
+			                  if time_list:
+			                    ftime_dict = time_list  
+			      # Address
+			      addrs_div1 = cols.find("div",{"class":"mbot0"})
+			      if addrs_div1:
+			        addrs_div2 = addrs_div1.find("div",{"class":"res-main-address"})
+			        if addrs_div2:
+			          addrs_span1 = addrs_div2.find("span")
+			          address = addrs_span1.text
+			          if address:
+			            faddress = address.strip()     
+			      #  Highlights
+			      hilits_div1 = cols.find("div",{"class","pbot0"})
+			      if hilits_div1:
+			        hilits_div2 = hilits_div1.find("div",{"class","res-info-highlights"})
+			        if hilits_div2:
+			          highlits= ''
+			          for hlits in hilits_div2.findAll("div",{"class","res-info-feature-text"}):
+			            # hilit = hlits.find("div",{"class","res-info-feature-text"})
+			            highlits += str(hlits.text) + "," 
+			          highlits = highlits.rstrip(',') 
+			      # Known for
+			      known_div1 = cols.find("div",{"class":"res-info-known-for-text"})
+			      if known_div1:
+			        known_for = known_div1.text
+			        known_for = known_for.strip() 
+			    print("data extracted")    
+			    data = {"timimgs":ftime_dict,"address":faddress,"phone":fphone,"cuisines":fcuisines,"highlits":highlits,"knownfor":known_for}     
+			    return data
 
 def mymenu(url):
   url = str(url) + "/menu"  
@@ -224,6 +235,7 @@ def write():
     title = split[0]
     cost = split[1]
     data = mypage(url)
+    print(data)
     if data:
       if cost:
         data["cost"] = str(cost)
@@ -232,6 +244,7 @@ def write():
       data["menu"] = mymenu(url) 
       scrap[i] = data
       i = i+1
+      print("fetch done")
   workbook = xlsxwriter.Workbook('NCR.xlsx')
   worksheet = workbook.add_worksheet()
   wrap = workbook.add_format({'text_wrap':True})
@@ -247,7 +260,90 @@ def write():
   print("Completed")  
 
 
-list1= mylist()
-print(list1)
-# write()
-# f = open('reviews', 'a')
+
+def write_new():
+  # list1 = mylist()  
+  list1 = {}  
+  list1['Tossin Pizza_500'] = "https://www.zomato.com/ncr/tossin-pizza-dlf-phase-4-gurgaon"
+  for key,url in list1.items():
+    split = key.split("_")
+    title = split[0]
+    data = online_menu(url)
+    print("fetch done")
+    if data:
+      mxlsx = title+".xlsx"
+      workbook = xlsxwriter.Workbook(mxlsx)
+      worksheet = workbook.add_worksheet()
+      wrap = workbook.add_format({'text_wrap':True})
+      row = 0
+      for index,item in data.items():
+        col = 0
+        for key,value in item.items():   
+          worksheet.write(row, col,value,wrap)
+          col = col + 1
+        prin = 'row ' + str(row) + ' done'  
+        print(prin)
+        row += 1  
+  print("Completed")
+
+
+def online_menu(url):
+  headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
+  url = url+"/order"
+  page = requests.get(url, headers=headers)
+  page_text = page.text
+  pagesoup = BeautifulSoup(page_text, "html.parser")
+  main_div2 = pagesoup.find("head")
+  for scripts in main_div2.findAll("script"):
+    data = scripts.text
+    res = re.search("(\w+)(\.)(res_id)(\s)(=)(\s)(\w+)",data)
+    if res:
+      rid = res.group(0)
+      rid = rid.lstrip('window.res_id = ')
+      print(rid)
+      params = {"res_id": rid, "case":"getdata" , "csrfToken": "c8c00a7182dc54a1171d5738e49e2c6a"}
+      head = {"User-Agent": headers["User-Agent"],"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8","Referer":"https://www.zomato.com/","Accept":"application/json"}
+      fetch = s.post("https://www.zomato.com/php/o2_handler.php", data = params, headers = head)
+      if fetch.status_code == 200:
+        fte = fetch.text
+        fte = json.loads(fte)
+        if fte:
+          myitem = {}
+          l = 0
+          for menu in fte['menus']:
+            sm_menu = menu['menu']
+            for cats in sm_menu['categories']:
+              sm_cats = cats['category']
+              if sm_cats:
+              	cat_name = sm_cats['name']
+              	for its in sm_cats['items']:
+              	  myitem[l] = {}	
+              	  sm_item = its['item']
+              	  g = 0	
+              	  if sm_item.get('groups'):
+              	    for gps in sm_item.get('groups'):
+              	  	  gp_key = 'gp'+str(g)
+              	  	  sm_group = gps['group']
+              	  	  if sm_group:
+              	  	    gp_name = sm_group['name']
+              	  	    sm_gp_item_name = []
+              	  	    for gp_its in sm_group['items']:
+              	  	  	  sm_gp_item = gp_its['item']
+              	  	  	  sm_gp_item_name.append(sm_gp_item['name'])
+              	  	    gp_data = str(gp_name) + ' : '  
+              	  	    for x in sm_gp_item_name:  
+              	  	      gp_data = gp_data + str(x) + ','  
+              	  	    gp_data = gp_data.rstrip(',')   
+              	  	    myitem[l][gp_key] = gp_data
+              	  	    g = g + 1
+              	  myitem[l]['price'] = sm_item['price']
+              	  myitem[l]['min_price'] = sm_item['min_price']
+              	  myitem[l]['max_price'] = sm_item['max_price']
+              	  myitem[l]['desc'] = sm_item['desc']
+              	  myitem[l]['category'] = cat_name
+              	  myitem[l]['item_name'] = sm_item['name']
+              	  l = l+1	
+          return myitem  
+
+
+write_new()
