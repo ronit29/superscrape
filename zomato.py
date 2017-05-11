@@ -224,6 +224,36 @@ def myreviews():
       print(out)
   print("File Ready")      
 
+def myaddrespage(url):
+  faddress =''
+  headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
+  page = requests.get(url, headers=headers)
+  page_text = page.text
+  pagesoup = BeautifulSoup(page_text, "html.parser")
+  main_div1 = pagesoup.find("div",{"class","container"})
+  if main_div1:
+    main_div2 = main_div1.find("div",{"class","mtop"})
+    if main_div2:
+      main_div3 = main_div2.find("div",{"class","row"})
+      if main_div3:
+        main_div4 = main_div3.find("div",{"class","mbot"})
+        if main_div4:
+          main_div5 = main_div4.find("div",{"class","row"})
+        if main_div5:
+          for cols in main_div5.findAll("div",{"class","pr20"}):  
+            # Address
+            addrs_div1 = cols.find("div",{"class":"mbot0"})
+            if addrs_div1:
+              addrs_div2 = addrs_div1.find("div",{"class":"res-main-address"})
+              if addrs_div2:
+                addrs_span1 = addrs_div2.find("span")
+                address = addrs_span1.text
+                if address:
+                  faddress = address.strip()    
+                else:
+                  faddress = ' '   
+    return faddress
+
 
 def write():
   list1 = mylist()  
@@ -258,8 +288,114 @@ def write():
     prin = 'row ' + str(row) + ' done'  
     print(prin)
     row += 1  
-  print("Completed")  
+  print("Completed") 
 
 
-write()
-# f = open('reviews', 'a')
+def write_new():
+  list1 = mylist()  
+  # list1 = {}  
+  # list1['Tossin Pizza_500'] = "https://www.zomato.com/ncr/tossin-pizza-dlf-phase-4-gurgaon"
+  for key,url in list1.items():
+    split = key.split("_")
+    title = split[0]
+    data = online_menu(url)
+    print("fetch done")
+    if data:
+      mxlsx = title+".xlsx"
+      workbook = xlsxwriter.Workbook(mxlsx)
+      worksheet = workbook.add_worksheet()
+      wrap = workbook.add_format({'text_wrap':True})
+      row = 0
+      for index,item in data.items():
+        col = 0
+        for key,value in item.items():   
+          worksheet.write(row, col,value,wrap)
+          col = col + 1
+        prin = 'row ' + str(row) + ' done'  
+        print(prin)
+        row += 1  
+  print("Completed")
+
+
+def online_menu(url):
+  headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"}
+  url = url+"/order"
+  page = requests.get(url, headers=headers)
+  page_text = page.text
+  pagesoup = BeautifulSoup(page_text, "html.parser")
+  main_div2 = pagesoup.find("head")
+  for scripts in main_div2.findAll("script"):
+    data = scripts.text
+    res = re.search("(\w+)(\.)(res_id)(\s)(=)(\s)(\w+)",data)
+    if res:
+      rid = res.group(0)
+      rid = rid.lstrip('window.res_id = ')
+      print(rid)
+      params = {"res_id": rid, "case":"getdata" , "csrfToken": "c8c00a7182dc54a1171d5738e49e2c6a"}
+      head = {"User-Agent": headers["User-Agent"],"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8","Referer":"https://www.zomato.com/","Accept":"application/json"}
+      fetch = s.post("https://www.zomato.com/php/o2_handler.php", data = params, headers = head)
+      if fetch.status_code == 200:
+        fte = fetch.text
+        fte = json.loads(fte)
+        if fte:
+          myitem = {}
+          l = 1
+          myitem[0] = {}
+          myitem[0]['price'] = "Price"
+          myitem[0]['min_price'] = "Min Price"
+          myitem[0]['max_price'] = "Max Price"
+          myitem[0]['desc'] = "Description"
+          myitem[0]['type'] = "Type"
+          myitem[0]['sub_category'] = "Sub Category"
+          myitem[0]['main_category'] = "Main Category"
+          myitem[0]['item_name'] = "ITEM NAME"
+          myitem[0]['gp2'] = "OPTION 3"
+          myitem[0]['gp1'] = "OPTION 2"
+          myitem[0]['gp0'] = "OPTION 1"
+          for menu in fte['menus']:
+            sm_menu = menu['menu']
+            for cats in sm_menu['categories']:
+              sm_cats = cats['category']
+              if sm_cats:
+                cat_name = sm_cats['name']
+                for its in sm_cats['items']:
+                  myitem[l] = {}  
+                  sm_item = its['item']
+                  if sm_item:
+                    dty = sm_item.get('item_tag_image')
+                    if dty:
+                      if dty.find('non') == -1:
+                        dtyp = "Veg"
+                      else:
+                        dtyp = "Non Veg"   
+                  myitem[l]['price'] = sm_item['price'] if sm_item['price'] else ' '
+                  myitem[l]['min_price'] = sm_item['min_price'] if sm_item['min_price'] else ' '
+                  myitem[l]['max_price'] = sm_item['max_price'] if sm_item['max_price'] else ' '
+                  myitem[l]['desc'] = sm_item['desc'] if sm_item['desc'] else ' '
+                  myitem[l]['type'] = dtyp if dtyp else ' '
+                  myitem[l]['category'] = cat_name if cat_name else ' '
+                  myitem[l]['main_category'] = sm_menu['name'] if sm_menu['name'] else ' '
+                  myitem[l]['item_name'] = sm_item['name'] if sm_item['name'] else ' '
+                  g = 0 
+                  if sm_item.get('groups'):
+                    for gps in sm_item.get('groups'):
+                      gp_key = 'gp'+str(g)
+                      sm_group = gps['group']
+                      if sm_group:
+                        gp_name = sm_group['name']
+                        sm_gp_item_name = []
+                        for gp_its in sm_group['items']:
+                          sm_gp_item = gp_its['item']
+                          sm_gp_item_name.append(sm_gp_item['name'])
+                        gp_data = str(gp_name) + ' : '  
+                        for x in sm_gp_item_name:  
+                          gp_data = gp_data + str(x) + ','  
+                        gp_data = gp_data.rstrip(',')   
+                        myitem[l][gp_key] = gp_data if gp_data else ' '
+                        g = g + 1
+                  l = l+1 
+          return myitem  
+
+
+write_new()
+
